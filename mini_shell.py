@@ -12,6 +12,54 @@ jobs = {}
 job_counter = 1
 
 import random  # Add this import
+# User credentials (username -> password)
+user_credentials = {
+    "user1": "password123",
+    "admin": "adminpass"
+}
+
+# Function to handle user login
+def login():
+    username = input("Username: ")
+    password = input("Password: ")
+    
+    if username in user_credentials and user_credentials[username] == password:
+        print("Access granted.")
+        return username  # Return logged-in user
+    else:
+        print("Access denied.")
+        return None
+
+# Authentication before starting shell
+current_user = None
+while current_user is None:
+    current_user = login()
+
+# Start the shell loop after successful login
+def shell():
+    while True:
+        try:
+            command = input(f"{current_user}@shell> ")
+            if command.strip() == "exit":
+                break
+            elif command.startswith("cat "):
+                _, filename = command.split(maxsplit=1)
+                if current_user == "admin" or filename == "public.txt":
+                    execute_foreground(command)
+                else:
+                    print("Permission Denied.")
+            else:
+                execute_foreground(command)
+        except Exception as e:
+            print(f"Error: {e}")
+
+# Function to execute commands
+def execute_foreground(command):
+    try:
+        process = subprocess.Popen(command, shell=True)
+        process.wait()
+    except Exception as e:
+        print(f"Error executing command: {e}")
 
 def test_round_robin():
     print("Running Round-Robin Scheduling Test...")
